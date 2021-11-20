@@ -1,0 +1,50 @@
+@import '../styles/styles';
+
+.animated{
+  transition: all .3s ease-out;
+}
+
+.range-slider {
+  width: 100%;
+  height: $slider-height;
+  background-color: rgba($app_lightest_grey, .2);
+  border: 1px solid rgba($app_lightest_grey, .2);
+  border-radius: 20px;
+  display: inline-block;
+  position: relative;
+
+  .selected-range {
+    @include user-select;
+    position: absolute;
+    height: $button-height;
+    width: 200px;
+    background-color: rgba($rsb_green, .2);
+    top: 50%;
+    cursor: grab;
+
+    transform: translate(10px, -50%);
+  }
+
+  .slider-button {
+    position: absolute;
+    height: $button-height;
+    background-color: white;
+    border: 1px solid rgba($app_light_grey, .2);
+    border-radius: 5px;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    justify-content: space-evenly;
+    align-items: center;
+    z-index: 10;
+    cursor: e-resize;
+
+
+    &>span {
+      width: 1px;
+      height: 60%;
+      background-color: rgba($app_lightest_grey, .7);
+      display: inline-block;
+    }
+  }
+}

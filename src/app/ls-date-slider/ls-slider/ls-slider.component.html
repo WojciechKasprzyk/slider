@@ -1,0 +1,23 @@
+<div #sliderBar class="range-slider">
+    <span #buttonLeft
+          class="slider-button"
+          [class.animated]="!draggingElement"
+          draggable="false"
+          [style.width.px]="BUTTON_WIDTH"
+          (mousedown)="mouseDownHandler($event, buttonLeft)">
+        <span></span><span></span>
+    </span>
+    <span #selectedRange
+          [class.animated]="!draggingElement"
+          class="selected-range"
+          (mousedown)="mouseDownHandler($event, selectedRange)">
+    </span>
+    <span #buttonRight
+          class="slider-button"
+          [class.animated]="!draggingElement"
+          draggable="false"
+          [style.width.px]="BUTTON_WIDTH"
+          (mousedown)="mouseDownHandler($event, buttonRight)">
+        <span></span><span></span>
+    </span>
+</div>
