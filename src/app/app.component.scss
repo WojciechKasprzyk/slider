@@ -1,0 +1,16 @@
+$date-width: 200px;
+$slider-min-width: calc(#{$date-width} + 50px);
+
+::ng-deep {
+  body {
+    background: #353535;
+  }
+}
+
+.slider-inner {
+  display: flex;
+  flex-flow: column;
+  justify-content: space-evenly;
+  width: 100vw;
+  min-width: $slider-min-width;
+}

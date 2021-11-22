@@ -1,23 +1,32 @@
-<div #sliderBar class="range-slider">
-    <span #buttonLeft
-          class="slider-button"
-          [class.animated]="!draggingElement"
-          draggable="false"
-          [style.width.px]="BUTTON_WIDTH"
-          (mousedown)="mouseDownHandler($event, buttonLeft)">
-        <span></span><span></span>
-    </span>
-    <span #selectedRange
-          [class.animated]="!draggingElement"
-          class="selected-range"
-          (mousedown)="mouseDownHandler($event, selectedRange)">
-    </span>
-    <span #buttonRight
-          class="slider-button"
-          [class.animated]="!draggingElement"
-          draggable="false"
-          [style.width.px]="BUTTON_WIDTH"
-          (mousedown)="mouseDownHandler($event, buttonRight)">
-        <span></span><span></span>
-    </span>
+<div class="slider-container">
+  <div #sliderBar class="range-slider">
+    <span *ngFor="let _ of steps; let first = first; let last = last"
+          [style.visibility]="first || last ? 'hidden' : 'visible'"
+          [style.marginLeft.px]="first ? BUTTON_WIDTH / 2 : 0"
+          [style.marginRight.px]="last ? BUTTON_WIDTH / 2 : 0"
+          class="step-decorator"></span>
+      <span #buttonLeft
+            *ngIf="rangeSelector"
+            class="slider-button"
+            [class.animated]="!draggingElement"
+            draggable="false"
+            [style.width.px]="BUTTON_WIDTH"
+            (mousedown)="mouseDownHandler($event, buttonLeft)">
+          <span></span><span></span>
+      </span>
+      <span #selectedRange
+            [class.animated]="!draggingElement"
+            [class.draggable]="rangeSelector"
+            class="selected-range"
+            (mousedown)="rangeSelector && mouseDownHandler($event, selectedRange)">
+      </span>
+      <span #buttonRight
+            class="slider-button"
+            [class.animated]="!draggingElement"
+            draggable="false"
+            [style.width.px]="BUTTON_WIDTH"
+            (mousedown)="mouseDownHandler($event, buttonRight)">
+          <span></span><span></span>
+      </span>
+  </div>
 </div>
