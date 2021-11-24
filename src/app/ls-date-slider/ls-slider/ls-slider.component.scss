@@ -6,6 +6,11 @@
   -ms-user-select: none; /* Internet Explorer/Edge */
   user-select: none; /* Non-prefixed version, currently */
 }
+
+@mixin touch-action-none {
+  touch-action: none;
+}
+
 // sizes
 $button-height: 24px;
 $slider-height: 12px;
@@ -35,6 +40,7 @@ $rsb_green: #22c4ac;
 
     .selected-range {
       @include user-select;
+      @include touch-action-none;
       position: absolute;
       height: $button-height;
       width: 200px;
@@ -45,6 +51,7 @@ $rsb_green: #22c4ac;
     }
 
     .slider-button {
+      @include touch-action-none;
       position: absolute;
       height: $button-height;
       background-color: white;
@@ -79,6 +86,16 @@ $rsb_green: #22c4ac;
   cursor: grab;
   &:active {
     cursor: grabbing;
+  }
+}
+
+.disabled {
+  opacity: 0.7;
+  cursor: default !important;
+
+  .slider-button,
+  .selected-range {
+    cursor: inherit !important;
   }
 }
 

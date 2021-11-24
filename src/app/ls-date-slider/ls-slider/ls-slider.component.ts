@@ -6,8 +6,8 @@ import {
   Output,
   ViewChild
 } from '@angular/core';
-import { fromEvent, Subject } from 'rxjs';
-import { takeUntil, tap } from 'rxjs/operators';
+import { fromEvent, Subject, BehaviorSubject, Observable } from 'rxjs';
+import { distinctUntilChanged, mergeWith, takeUntil, tap } from 'rxjs/operators';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 
 /**
@@ -20,14 +20,16 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
  * - docs
  * - readme
  * - make some methods static
+ * - tests
+ * - check how io range slider did touch action none on document, maybe add class to body while sliding
  *
  * - resizeAfterTemplateIsReRendered setTimeout issue
  *
  * DONE
  * - 2 way binding
+ * - touch events
  *
  * */
-
 
 
 @Component({
@@ -60,6 +62,7 @@ export class LsSliderComponent implements AfterViewInit, OnDestroy, ControlValue
    */
   private _from = 0;
   private _to = 0;
+  private _value = 0;
 
   /**
    * Store buttons last emitted values
@@ -102,12 +105,14 @@ export class LsSliderComponent implements AfterViewInit, OnDestroy, ControlValue
   private rightButtonOffset!: number;
 
   private readonly ngUnsubscribe = new Subject<null>();
-  private readonly mouseUp$ = fromEvent(document, 'mouseup');
+  private readonly mouseUp$ = fromEvent(document, 'mouseup')
+    .pipe(mergeWith(fromEvent(document, 'touchend')));
   /**
    * Component is listening on whole document to provide user possibility
    * to dragging buttons over document, not only over this component (slider bar).
    */
-  private readonly mousemove$ = fromEvent(document, 'mousemove');
+  private readonly mousemove$ = fromEvent(document, 'mousemove')
+    .pipe(mergeWith(fromEvent(document, 'touchmove')));
 
   /**
    * Used in init method to make sure that correct slider bar width is set.
@@ -119,6 +124,16 @@ export class LsSliderComponent implements AfterViewInit, OnDestroy, ControlValue
    * TODO
    * */
   @Input() rangeSelector = true;
+
+  /**
+   * TODO
+   * */
+  @Input() emitValueWhileMoving = false;
+
+  /**
+   * TODO
+   * */
+  @Input() disabled = false;
 
   /**
    * TODO
@@ -144,6 +159,13 @@ export class LsSliderComponent implements AfterViewInit, OnDestroy, ControlValue
     this._to = this.getMaxValue(value);
   }
 
+  /**
+   * TODO
+   * */
+  @Input() set value(value: number) {
+    this._value = this.getMaxValue(this.getMinValue(value));
+  }
+
   @Input() set ceilValue(val: number) {
     this._ceilValue = val;
     this.steps = new Array(val + 1);
@@ -158,9 +180,11 @@ export class LsSliderComponent implements AfterViewInit, OnDestroy, ControlValue
 
   /**
    * Emit button values when they has been changed
+   * TODO doc
    */
   @Output() readonly fromChange = new EventEmitter<number>();
   @Output() readonly toChange = new EventEmitter<number>();
+  @Output() readonly valueChange = new EventEmitter<number>();
 
   /**
    * Emits on mouse up event (dragging end)
@@ -179,14 +203,26 @@ export class LsSliderComponent implements AfterViewInit, OnDestroy, ControlValue
     return this._ceilValue;
   }
 
+  get toOrValue(): number {
+    return this.rangeSelector ? this._to : this._value;
+  }
+
+  private readonly reactiveFormUnsubscribe = new Subject<null>();
+  private registerReactiveFormsChange?: BehaviorSubject<SliderInputValue>;
+  private registerReactiveFormsChange$?: Observable<SliderInputValue>;
+
   constructor(private cdr: ChangeDetectorRef) {
     /**
      * Subscribe to mouseUp event - dragging end
+     * TODO doc emitValueWhileMoving
      */
     this.mouseUp$
       .pipe(
         tap(() => {
           if (this.draggingElement) {
+            if(!this.emitValueWhileMoving) {
+              this.emitShiftedValues()
+            }
             this.draggingElement = null;
             this.cdr.markForCheck();
             this.draggingEnd.emit();
@@ -217,11 +253,22 @@ export class LsSliderComponent implements AfterViewInit, OnDestroy, ControlValue
    * @param event - MouseEvent
    * @param element - left/right button or selectedRange
    * selectedRange stands for both buttons
+   *
+   * TODO doc markAsTouched
+   * TODO doc disabled
    */
-  mouseDownHandler(event: MouseEvent, element: HTMLElement): void {
-    event.preventDefault();
+  mouseDownHandler(event: MouseEvent | TouchEvent, element: HTMLElement): void {
+    if (this.disabled) {
+      return;
+    }
+
+    this.markAsTouched();
+    if (event.cancelable) {
+      event.preventDefault();
+      event.stopPropagation();
+    }
     this.draggingElement = element;
-    this.startCursorPosition = event.clientX;
+    this.startCursorPosition = this.getEventClientX(event);
     if (element === this.selectedRange.nativeElement) {
       if (this.buttonLeft) {
         this.leftButtonOffset = this.getTranslateValueOf(this.buttonLeft.nativeElement);
@@ -233,7 +280,18 @@ export class LsSliderComponent implements AfterViewInit, OnDestroy, ControlValue
   }
 
   /**
-   * @param clientX - property of MouseEvent object.
+   *
+   * */
+  private getEventClientX(event: MouseEvent | TouchEvent): number {
+    if ((event as TouchEvent).touches) {
+      return (event as TouchEvent).touches[0].clientX;
+    }
+
+    return (event as MouseEvent).clientX;
+  }
+
+  /**
+   * @param event - MouseEvent or TouchEvent.
    *
    * Does nothing if draggingElement is null.
    * Otherwise, handles event and check:
@@ -247,9 +305,13 @@ export class LsSliderComponent implements AfterViewInit, OnDestroy, ControlValue
    *
    *    Then emits new buttons values if they has been changes
    *    and resizes highlighted range between buttons
+   *
+   *
+   *    TODO doc emitValueWhileMoving
    */
-  private onMouseMove({clientX}: MouseEvent) {
+  private onMouseMove(event: MouseEvent | TouchEvent) {
     if (this.draggingElement) {
+      const clientX = this.getEventClientX(event);
       if (this.draggingElement === this.selectedRange.nativeElement) {
         const translateLeft = this.leftButtonOffset + clientX - this.startCursorPosition;
         const translateRight = this.rightButtonOffset + clientX - this.startCursorPosition;
@@ -260,7 +322,9 @@ export class LsSliderComponent implements AfterViewInit, OnDestroy, ControlValue
         const correctedTranslateValue = this.correctTranslateValueAccordingToAnotherButton(validTranslateValue);
         this.moveButton(correctedTranslateValue);
       }
-      this.emitShiftedValues();
+      if (this.emitValueWhileMoving) {
+        this.emitShiftedValues();
+      }
       this.resizeSelectedRange();
     }
   };
@@ -308,6 +372,9 @@ export class LsSliderComponent implements AfterViewInit, OnDestroy, ControlValue
    *        then returns translate value of one step before right button
    *    If right button is dragged
    *        then returns translate value of one step after left button
+   *
+   * TODO doc!!! many docs
+   * TODO refacto
    */
   private correctTranslateValueAccordingToAnotherButton(translateValue: number): number {
     const futureSpaceBetweenButtons = this.calculateFutureButtonsDistanceDifference(translateValue);
@@ -315,7 +382,14 @@ export class LsSliderComponent implements AfterViewInit, OnDestroy, ControlValue
       return translateValue;
     } else {
       if(this.enableButtonsShuffle &&  this.minimalSpaceBetweenButtons === 0) {
-        this.draggingElement = this.draggingElement === this.buttonRight.nativeElement ? this.buttonLeft?.nativeElement : this.buttonRight?.nativeElement;
+        if (this.draggingElement === this.buttonRight.nativeElement) {
+          this._to = this.calculateValueFromTranslation(this.draggingElement!);
+          this.draggingElement = this.buttonLeft?.nativeElement;
+        } else {
+          this._from = this.calculateValueFromTranslation(this.draggingElement!);
+          this.draggingElement = this.buttonRight?.nativeElement;
+        }
+
       }
     }
 
@@ -342,6 +416,7 @@ export class LsSliderComponent implements AfterViewInit, OnDestroy, ControlValue
 
   /**
    * Calls methods which emit shifted value according to dragging element
+   * TODO doc
    */
   private emitShiftedValues(): void {
     if (this.draggingElement === this.selectedRange.nativeElement) {
@@ -354,6 +429,7 @@ export class LsSliderComponent implements AfterViewInit, OnDestroy, ControlValue
         this.emitHighValueIfHasBeenChanged(shiftedValue);
       }
     }
+    this.registerReactiveFormsChange?.next(this.reactiveFormOutputHighValue);
   }
 
   /**
@@ -376,13 +452,31 @@ export class LsSliderComponent implements AfterViewInit, OnDestroy, ControlValue
    *
    * If argument value is different than last emitted high value
    *    then sets and emits new low value, updates last emitted high value
+   *
+   * TODO doc value vs to
    */
   private emitHighValueIfHasBeenChanged(newHighValue: number): void {
     if  (this.lastEmittedHighValue !== newHighValue) {
       // shift and emit highValue
-      this._to = newHighValue;
       this.lastEmittedHighValue = newHighValue;
-      this.toChange.emit(this._to);
+      if (this.rangeSelector) {
+        this._to = newHighValue;
+        this.toChange.emit(this._to);
+      } else {
+        this._value = newHighValue;
+        this.valueChange.emit(this._value);
+      }
+    }
+  }
+
+  /**
+   * TODO doc
+   * */
+  private get reactiveFormOutputHighValue() {
+    if (this.rangeSelector) {
+      return {to: this._to, from: this._from};
+    } else {
+      return this._value;
     }
   }
 
@@ -390,7 +484,7 @@ export class LsSliderComponent implements AfterViewInit, OnDestroy, ControlValue
    * Calculates new low and high values and emits them if they are different than their last emitted values
    */
   private emitBothShiftedValues(): void {
-    if(this.buttonLeft) {
+    if (this.buttonLeft) {
       const newLowValue =  this.calculateValueFromTranslation(this.buttonLeft.nativeElement);
       this.emitLowValueIfHasBeenChanged(newLowValue);
     }
@@ -403,7 +497,7 @@ export class LsSliderComponent implements AfterViewInit, OnDestroy, ControlValue
    * Resizes selected Range after moving
    */
   private adjustElements(): void {
-    this.moveBothButtons(this.calculateTranslationFromValue(this._from), this.calculateTranslationFromValue(this._to));
+    this.moveBothButtons(this.calculateTranslationFromValue(this._from), this.calculateTranslationFromValue(this.toOrValue));
     this.resizeSelectedRange();
   }
 
@@ -511,7 +605,7 @@ export class LsSliderComponent implements AfterViewInit, OnDestroy, ControlValue
 
     if (this.buttonRight) {
       if (this.buttonRight.nativeElement.style.transform) {
-        this.buttonRight.nativeElement.style.transform = this.getTranslateValueCenteredVertically(this.calculateTranslationFromValue(this._to));
+        this.buttonRight.nativeElement.style.transform = this.getTranslateValueCenteredVertically(this.calculateTranslationFromValue(this.toOrValue));
       } else {
         this.buttonRight.nativeElement.style.transform = this.getTranslateValueCenteredVertically(this.maximumTranslateValue);
       }
@@ -584,8 +678,11 @@ export class LsSliderComponent implements AfterViewInit, OnDestroy, ControlValue
     this.mousemove$
       .pipe(
         tap((event) => {
-          event.preventDefault();
-          this.onMouseMove(event as MouseEvent);
+          if (event.cancelable) {
+            event.preventDefault();
+            event.stopPropagation();
+          }
+          this.onMouseMove(event as MouseEvent | TouchEvent);
         }),
         takeUntil(this.ngUnsubscribe)
       ).subscribe();
@@ -594,19 +691,45 @@ export class LsSliderComponent implements AfterViewInit, OnDestroy, ControlValue
   ngOnDestroy(): void {
     this.ngUnsubscribe.next(null);
     this.ngUnsubscribe.complete();
-  }
 
-
-  /**
-   * TODO
-   * */
-  registerOnChange(fn: any): void {
+    this.reactiveFormUnsubscribe.next(null);
+    this.reactiveFormUnsubscribe.complete();
   }
 
   /**
    * TODO
    * */
-  registerOnTouched(fn: any): void {
+  private onChange = (changes: SliderInputValue) => {};
+  private onTouched = () => {};
+
+  private touched = false;
+
+  private markAsTouched() {
+    if (!this.touched) {
+      this.onTouched();
+      this.touched = true;
+    }
+  }
+
+  /**
+   * TODO
+   * */
+  registerOnChange(onChange: any): void {
+    this.onChange = onChange;
+  }
+
+  /**
+   * TODO
+   * */
+  registerOnTouched(onTouched: any): void {
+    this.onTouched = onTouched;
+  }
+
+  /**
+   * TODO
+   * */
+  setDisabledState(disabled: boolean): void {
+    this.disabled = disabled;
   }
 
   /**
@@ -627,14 +750,39 @@ export class LsSliderComponent implements AfterViewInit, OnDestroy, ControlValue
         if (_value.to > this._ceilValue) throw new Error(`'to' property cannot be more then ceilValue`);
         if (_value.to < _value.from) throw new Error(`'to' property cannot be less then 'from' property`);
         this.updateValues(_value.from, _value.to);
+        this.subscribeToReactiveForm({from: _value.from, to: _value.to});
       }
     } else {
       if (typeof value === 'number' && !isNaN(value)) {
-        // TODO single Value mode
+        if (value < 0) throw new Error(`value has to be less then 0`);
+        if (value > this._ceilValue) throw new Error(`value cannot be more then ceilValue`);
+        this.value = value;
+        this.subscribeToReactiveForm(value);
       } else {
         throw new Error(`Input value has to be type of number while in single value mode`)
       }
     }
+  }
+  /**
+   * TODO doc
+   * */
+  private subscribeToReactiveForm(value: SliderInputValue) {
+    this.reactiveFormUnsubscribe.next(null);
+    this.registerReactiveFormsChange = new BehaviorSubject<SliderInputValue>(value);
+    this.registerReactiveFormsChange$ = this.registerReactiveFormsChange.asObservable();
+    this.registerReactiveFormsChange$
+      .pipe(
+        distinctUntilChanged<SliderInputValue>((previous, current) => {
+          if (this.rangeSelector) {
+            return(previous as RangeInputValue).to === (current as RangeInputValue).to
+              && (previous as RangeInputValue).from === (current as RangeInputValue).from;
+          }
+
+          return previous === current;
+        }),
+        tap((changes: SliderInputValue) => this.onChange(changes)),
+        takeUntil(this.reactiveFormUnsubscribe)
+      ).subscribe()
   }
 }
 

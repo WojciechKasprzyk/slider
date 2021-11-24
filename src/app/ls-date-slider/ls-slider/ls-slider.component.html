@@ -1,4 +1,4 @@
-<div class="slider-container">
+<div class="slider-container" [class.disabled]="disabled">
   <div #sliderBar class="range-slider">
     <span *ngFor="let _ of steps; let first = first; let last = last"
           [style.visibility]="first || last ? 'hidden' : 'visible'"
@@ -11,6 +11,7 @@
             [class.animated]="!draggingElement"
             draggable="false"
             [style.width.px]="BUTTON_WIDTH"
+            (touchstart)="mouseDownHandler($event, buttonLeft)"
             (mousedown)="mouseDownHandler($event, buttonLeft)">
           <span></span><span></span>
       </span>
@@ -18,6 +19,7 @@
             [class.animated]="!draggingElement"
             [class.draggable]="rangeSelector"
             class="selected-range"
+            (touchstart)="rangeSelector && mouseDownHandler($event, selectedRange)"
             (mousedown)="rangeSelector && mouseDownHandler($event, selectedRange)">
       </span>
       <span #buttonRight
@@ -25,6 +27,7 @@
             [class.animated]="!draggingElement"
             draggable="false"
             [style.width.px]="BUTTON_WIDTH"
+            (touchstart)="mouseDownHandler($event, buttonRight)"
             (mousedown)="mouseDownHandler($event, buttonRight)">
           <span></span><span></span>
       </span>

@@ -13,7 +13,7 @@ export class AppComponent {
   to = 4;
 
   form = this.fb.group({
-    // slider: {a: 5},
+    // slider: 3,
     slider: {
       from: 3,
       to: 3
@@ -21,6 +21,7 @@ export class AppComponent {
   });
 
   constructor(private fb: FormBuilder) {
-    this.form.valueChanges.subscribe(changes => console.log(changes))
+    this.form.valueChanges.subscribe(changes => console.log(changes));
+    // this.form.disable()
   }
 }
