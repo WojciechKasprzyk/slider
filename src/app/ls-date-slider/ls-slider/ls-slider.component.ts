@@ -12,7 +12,6 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 
 /**
  * TODO
- * - form
  * - custom steps
  * - custom buttons
  * - custom styles
@@ -28,6 +27,7 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
  * DONE
  * - 2 way binding
  * - touch events
+ * - form
  *
  * */
 
@@ -67,8 +67,8 @@ export class LsSliderComponent implements AfterViewInit, OnDestroy, ControlValue
   /**
    * Store buttons last emitted values
    */
-  private lastEmittedLowValue = 0;
-  private lastEmittedHighValue = 0;
+  private lastEmittedFromValue = 0;
+  private lastEmittedToValue = 0;
 
   /**
    * CONSTANT property
@@ -150,6 +150,7 @@ export class LsSliderComponent implements AfterViewInit, OnDestroy, ControlValue
    * */
   @Input() set from(value: number) {
     this._from = this.getMinValue(value);
+    this.lastEmittedFromValue = this._from;
   }
 
   /**
@@ -157,6 +158,7 @@ export class LsSliderComponent implements AfterViewInit, OnDestroy, ControlValue
    * */
   @Input() set to(value: number) {
     this._to = this.getMaxValue(value);
+    this.lastEmittedToValue = this._to;
   }
 
   /**
@@ -164,6 +166,7 @@ export class LsSliderComponent implements AfterViewInit, OnDestroy, ControlValue
    * */
   @Input() set value(value: number) {
     this._value = this.getMaxValue(this.getMinValue(value));
+    this.lastEmittedToValue = this._value;
   }
 
   @Input() set ceilValue(val: number) {
@@ -238,14 +241,8 @@ export class LsSliderComponent implements AfterViewInit, OnDestroy, ControlValue
    * calls init method to resize slider elements.
    */
   updateValues(lowValue: number, highValue: number): void {
-    const validLowValue = this.getMinValue(lowValue);
-    this._from = validLowValue;
-    this.lastEmittedLowValue = validLowValue;
-
-    const validHighValue = this.getMaxValue(highValue);
-    this._to = validHighValue;
-    this.lastEmittedHighValue = validHighValue;
-
+    this.from = lowValue;
+    this.to = highValue;
     this.init();
   }
 
@@ -383,10 +380,10 @@ export class LsSliderComponent implements AfterViewInit, OnDestroy, ControlValue
     } else {
       if(this.enableButtonsShuffle &&  this.minimalSpaceBetweenButtons === 0) {
         if (this.draggingElement === this.buttonRight.nativeElement) {
-          this._to = this.calculateValueFromTranslation(this.draggingElement!);
+          this.to = this.calculateValueFromTranslation(this.draggingElement!);
           this.draggingElement = this.buttonLeft?.nativeElement;
         } else {
-          this._from = this.calculateValueFromTranslation(this.draggingElement!);
+          this.from = this.calculateValueFromTranslation(this.draggingElement!);
           this.draggingElement = this.buttonRight?.nativeElement;
         }
 
@@ -439,10 +436,9 @@ export class LsSliderComponent implements AfterViewInit, OnDestroy, ControlValue
    *    then sets and emits new low value, updates last emitted low value
    */
   private emitLowValueIfHasBeenChanged(newLowValue: number): void {
-    if (this.lastEmittedLowValue !== newLowValue) {
+    if (this.lastEmittedFromValue !== newLowValue) {
       // shift and emit lowValue
-      this._from = newLowValue;
-      this.lastEmittedLowValue = newLowValue;
+      this.from = newLowValue;
       this.fromChange.emit(this._from);
     }
   }
@@ -456,14 +452,13 @@ export class LsSliderComponent implements AfterViewInit, OnDestroy, ControlValue
    * TODO doc value vs to
    */
   private emitHighValueIfHasBeenChanged(newHighValue: number): void {
-    if  (this.lastEmittedHighValue !== newHighValue) {
+    if  (this.lastEmittedToValue !== newHighValue) {
       // shift and emit highValue
-      this.lastEmittedHighValue = newHighValue;
       if (this.rangeSelector) {
-        this._to = newHighValue;
+        this.to = newHighValue;
         this.toChange.emit(this._to);
       } else {
-        this._value = newHighValue;
+        this.value = newHighValue;
         this.valueChange.emit(this._value);
       }
     }
