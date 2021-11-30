@@ -1,4 +1,5 @@
 <div class="slider-container" [class.disabled]="disabled">
+  <!--RANGE SLIDER-->
   <div #sliderBar class="range-slider">
     <span *ngFor="let _ of steps; let first = first; let last = last"
           [style.visibility]="first || last ? 'hidden' : 'visible'"
@@ -32,4 +33,14 @@
           <span></span><span></span>
       </span>
   </div>
+
+  <!--STEPS LABELS-->
+  <div class="steps-labels">
+<!--          [style.visibility]="first || last ? 'hidden' : 'visible'"-->
+    <span *ngFor="let _ of steps; let first = first; let last = last"
+          [style.marginLeft.px]="first ? BUTTON_WIDTH / 2 : 0"
+          [style.marginRight.px]="last ? BUTTON_WIDTH / 2 : 0"
+          class="step-decorator">step</span>
+  </div>
+
 </div>

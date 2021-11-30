@@ -16,7 +16,7 @@ export class AppComponent {
     // slider: 3,
     slider: {
       from: 3,
-      to: 3
+      to: 4
     }
   });
 

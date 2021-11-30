@@ -28,6 +28,7 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
  * - 2 way binding
  * - touch events
  * - form
+ * - setters refactoring
  *
  * */
 
@@ -179,7 +180,17 @@ export class LsSliderComponent implements AfterViewInit, OnDestroy, ControlValue
   /**
    * TODO
    * */
-  steps: undefined[] = [];
+  @Input() set stepsLabels(value: string[]) {
+    this._stepsLabels = value;
+    this.steps = value;
+  }
+
+  private _stepsLabels?: string[];
+
+  /**
+   * TODO
+   * */
+  steps: Array<string | undefined> = [];
 
   /**
    * Emit button values when they has been changed
@@ -203,6 +214,10 @@ export class LsSliderComponent implements AfterViewInit, OnDestroy, ControlValue
   @ViewChild('selectedRange') private readonly selectedRange!: ElementRef;
 
   get ceilValue(): number {
+    if (this._stepsLabels) {
+      return this._stepsLabels.length - 1;
+    }
+
     return this._ceilValue;
   }
 
@@ -624,9 +639,9 @@ export class LsSliderComponent implements AfterViewInit, OnDestroy, ControlValue
    * TODO
    * */
   private getMaxValue(value: number): number {
-    if (this._ceilValue < value) {
-      console.error(`'to' value cannot be bigger than ceilValue.\nTrying set value of ${value}, cannot be more than ${this._ceilValue}`);
-      return this._ceilValue;
+    if (this.ceilValue < value) {
+      console.error(`'to' value cannot be bigger than ceilValue.\nTrying set value of ${value}, cannot be more than ${this.ceilValue}`);
+      return this.ceilValue;
     }
     return value;
   }
@@ -742,7 +757,7 @@ export class LsSliderComponent implements AfterViewInit, OnDestroy, ControlValue
       } else {
         // TODO range value mode
         if (_value.from < 0) throw new Error(`'from' property cannot be less then 0`);
-        if (_value.to > this._ceilValue) throw new Error(`'to' property cannot be more then ceilValue`);
+        if (_value.to > this.ceilValue) throw new Error(`'to' property cannot be more then ceilValue`);
         if (_value.to < _value.from) throw new Error(`'to' property cannot be less then 'from' property`);
         this.updateValues(_value.from, _value.to);
         this.subscribeToReactiveForm({from: _value.from, to: _value.to});
@@ -750,7 +765,7 @@ export class LsSliderComponent implements AfterViewInit, OnDestroy, ControlValue
     } else {
       if (typeof value === 'number' && !isNaN(value)) {
         if (value < 0) throw new Error(`value has to be less then 0`);
-        if (value > this._ceilValue) throw new Error(`value cannot be more then ceilValue`);
+        if (value > this.ceilValue) throw new Error(`value cannot be more then ceilValue`);
         this.value = value;
         this.subscribeToReactiveForm(value);
       } else {

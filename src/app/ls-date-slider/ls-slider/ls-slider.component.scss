@@ -80,6 +80,13 @@ $rsb_green: #22c4ac;
       display: inline-block;
     }
   }
+
+  .steps-labels {
+    display: flex;
+    justify-content: space-between;
+
+    width: 100%;
+  }
 }
 
 .draggable {
