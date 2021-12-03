@@ -41,7 +41,6 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
   templateUrl: './ls-slider.component.html',
   styleUrls: ['./ls-slider.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  encapsulation: ViewEncapsulation.ShadowDom,
   providers: [
     {
       provide: NG_VALUE_ACCESSOR,
@@ -680,8 +679,8 @@ export class LsSliderComponent implements AfterViewInit, OnDestroy, ControlValue
    * TODO
    * */
   private getMaxValue(value: number): number {
-    if (this.ceilValue < value || value < this._from) {
-      console.error(`'to' value cannot be bigger than ceilValue and smaller than 'from' value.\nTrying set value of ${value}, cannot be more than ${this.ceilValue}`);
+    if (this.ceilValue < value) {
+      console.error(`'to' value cannot be bigger than ceilValue.\nTrying set value of ${value}, cannot be more than ${this.ceilValue}`);
       return this.ceilValue;
     }
     return value;
@@ -691,8 +690,8 @@ export class LsSliderComponent implements AfterViewInit, OnDestroy, ControlValue
    * TODO
    * */
   private getMinValue(value: number): number {
-    if (value < 0 || value > this._to) {
-      console.error(`'from' value cannot be smaller than 0 and bigger than 'to' value.\nTrying set value of ${value}`);
+    if (value < 0) {
+      console.error(`'from' value cannot be smaller than 0.\nTrying set value of ${value}`);
       return 0;
     }
     return value;
