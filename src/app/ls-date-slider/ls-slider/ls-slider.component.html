@@ -1,46 +1,46 @@
 <div class="slider-container" [class.disabled]="disabled">
   <!--RANGE SLIDER-->
   <div #sliderBar class="range-slider">
-    <span *ngFor="let _ of steps; let first = first; let last = last"
-          [style.visibility]="first || last ? 'hidden' : 'visible'"
-          [style.marginLeft.px]="first ? BUTTON_WIDTH / 2 : 0"
-          [style.marginRight.px]="last ? BUTTON_WIDTH / 2 : 0"
-          class="step-decorator"></span>
-      <span #buttonLeft
-            *ngIf="rangeSelector"
-            class="slider-button"
-            [class.animated]="!draggingElement"
-            draggable="false"
-            [style.width.px]="BUTTON_WIDTH"
-            (touchstart)="mouseDownHandler($event, buttonLeft)"
-            (mousedown)="mouseDownHandler($event, buttonLeft)">
+    <ng-container *ngIf="showGrid">
+      <span *ngFor="let _ of steps; let first = first; let last = last"
+            [style.visibility]="hideSideSteps && (first || last) ? 'hidden' : 'visible'"
+            [style.marginLeft.px]="first ? BUTTON_WIDTH / 2 : 0"
+            [style.marginRight.px]="last ? BUTTON_WIDTH / 2 : 0"
+            class="step-decorator"></span>
+    </ng-container>
+    <span #buttonLeft
+          *ngIf="rangeSelector"
+          class="slider-button"
+          [class.animated]="animationEnabled && !draggingElement"
+          draggable="false"
+          [style.width.px]="BUTTON_WIDTH"
+          (touchstart)="mouseDownHandler($event, buttonLeft)"
+          (mousedown)="mouseDownHandler($event, buttonLeft)">
           <span></span><span></span>
       </span>
-      <span #selectedRange
-            [class.animated]="!draggingElement"
-            [class.draggable]="rangeSelector"
-            class="selected-range"
-            (touchstart)="rangeSelector && mouseDownHandler($event, selectedRange)"
-            (mousedown)="rangeSelector && mouseDownHandler($event, selectedRange)">
+    <span #selectedRange
+          [class.animated]="animationEnabled && !draggingElement"
+          [class.draggable]="rangeSelector"
+          class="selected-range"
+          (touchstart)="rangeSelector && mouseDownHandler($event, selectedRange)"
+          (mousedown)="rangeSelector && mouseDownHandler($event, selectedRange)">
       </span>
-      <span #buttonRight
-            class="slider-button"
-            [class.animated]="!draggingElement"
-            draggable="false"
-            [style.width.px]="BUTTON_WIDTH"
-            (touchstart)="mouseDownHandler($event, buttonRight)"
-            (mousedown)="mouseDownHandler($event, buttonRight)">
+    <span #buttonRight
+          class="slider-button"
+          [class.animated]="animationEnabled && !draggingElement"
+          draggable="false"
+          [style.width.px]="BUTTON_WIDTH"
+          (touchstart)="mouseDownHandler($event, buttonRight)"
+          (mousedown)="mouseDownHandler($event, buttonRight)">
           <span></span><span></span>
       </span>
   </div>
 
   <!--STEPS LABELS-->
   <div class="steps-labels">
-<!--          [style.visibility]="first || last ? 'hidden' : 'visible'"-->
-    <span *ngFor="let _ of steps; let first = first; let last = last"
-          [style.marginLeft.px]="first ? BUTTON_WIDTH / 2 : 0"
-          [style.marginRight.px]="last ? BUTTON_WIDTH / 2 : 0"
-          class="step-decorator">step</span>
+    <!--          [style.visibility]="first || last ? 'hidden' : 'visible'"-->
+    <span *ngFor="let step of _stepsLabels; let first = first; let last = last"
+          class="step-decorator">{{step}}</span>
   </div>
 
 </div>

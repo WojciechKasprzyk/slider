@@ -1,16 +1,31 @@
 <form [formGroup]="form">
   <div class="slider-inner">
     <ls-slider
-      [ceilValue]="5"
+      [ceilValue]="11"
       formControlName="slider"
-      [stepsLabels]="['jan', 'feb', 'mar']"
+      [stepsLabels]="['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec' ]"
     >
-<!--      [disabled]="true"-->
-<!--      [value]="2"-->
-    <!--  (draggingEnd)="emitShiftedDates()"-->
-    <!--  (lowValueChange)="shiftStartDate($event)"-->
-    <!--  (highValueChange)="shiftEndDate($event)"-->
+      <!--      [disabled]="true"-->
+      <!--      [value]="2"-->
+      <!--  (draggingEnd)="emitShiftedDates()"-->
+      <!--  (lowValueChange)="shiftStartDate($event)"-->
+      <!--  (highValueChange)="shiftEndDate($event)"-->
     </ls-slider>
   </div>
 </form>
+
+
+<div class="slider-inner">
+  <ls-slider id="second-slider"
+             [from]="9"
+             [to]="5"
+             [ceilValue]="11"
+  >
+    <!--      [disabled]="true"-->
+    <!--      [value]="2"-->
+    <!--  (draggingEnd)="emitShiftedDates()"-->
+    <!--  (lowValueChange)="shiftStartDate($event)"-->
+    <!--  (highValueChange)="shiftEndDate($event)"-->
+  </ls-slider>
+</div>
 

@@ -10,99 +10,120 @@
 @mixin touch-action-none {
   touch-action: none;
 }
-
 // sizes
 $button-height: 24px;
 $slider-height: 12px;
 //colors
-$app_lightest_grey: #BCBEBF;
-$app_light_grey: #6C7579;
-$rsb_green: #22c4ac;
 
-.animated{
-  transition: all .3s ease-out;
-}
+@mixin styles($app_lightest_grey, $app_light_grey, $slider_range_color, $slider_font_color) {
+  .animated {
+    transition: all .3s ease-out;
+  }
 
-.slider-container {
-  padding: 1rem;
+  .slider-container {
+    padding: 1rem;
 
-  .range-slider {
-    /** Necessary for steps displayed */
-    display: flex;
-    justify-content: space-between;
-
-    width: 100%;
-    height: $slider-height;
-    background-color: rgba($app_lightest_grey, .2);
-    border: 1px solid rgba($app_lightest_grey, .2);
-    border-radius: 20px;
-    position: relative;
-
-    .selected-range {
-      @include user-select-none;
-      @include touch-action-none;
-      position: absolute;
-      height: $button-height;
-      width: 200px;
-      background-color: rgba($rsb_green, .2);
-      top: 50%;
-
-      transform: translate(10px, -50%);
-    }
-
-    .slider-button {
-      @include touch-action-none;
-      position: absolute;
-      height: $button-height;
-      background-color: white;
-      border: 1px solid rgba($app_light_grey, .2);
-      border-radius: 5px;
-      top: 50%;
-      transform: translateY(-50%);
+    .range-slider {
+      /** Necessary for steps displayed */
       display: flex;
-      justify-content: space-evenly;
-      align-items: center;
-      z-index: 10;
-      cursor: e-resize;
+      justify-content: space-between;
 
-      &>span {
+      width: 100%;
+      height: $slider-height;
+      background-color: rgba($app_lightest_grey, .2);
+      border: 1px solid rgba($app_lightest_grey, .2);
+      border-radius: 20px;
+      position: relative;
+
+      .selected-range {
+        @include user-select-none;
+        @include touch-action-none;
+        position: absolute;
+        height: $button-height;
+        width: 200px;
+        background-color: rgba($slider_range_color, .2);
+        top: 50%;
+
+        transform: translate(10px, -50%);
+      }
+
+      .slider-button {
+        @include touch-action-none;
+        position: absolute;
+        height: $button-height;
+        background-color: white;
+        border: 1px solid rgba($app_light_grey, .2);
+        border-radius: 5px;
+        top: 50%;
+        transform: translateY(-50%);
+        display: flex;
+        justify-content: space-evenly;
+        align-items: center;
+        z-index: 10;
+        cursor: e-resize;
+
+        & > span {
+          width: 1px;
+          height: 60%;
+          background-color: rgba($app_lightest_grey, .7);
+          display: inline-block;
+        }
+      }
+
+      .step-decorator {
         width: 1px;
-        height: 60%;
+        height: 100%;
         background-color: rgba($app_lightest_grey, .7);
         display: inline-block;
+
+        margin-top: 5px;
       }
     }
 
-    .step-decorator {
-      width: 1px;
-      height: 100%;
-      background-color: rgba($app_lightest_grey, .7);
-      display: inline-block;
+    .steps-labels {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 10px;
+      color: $slider_font_color;
+      font-size: .7rem;
+
+      width: 100%;
     }
   }
 
-  .steps-labels {
-    display: flex;
-    justify-content: space-between;
+  .draggable {
+    cursor: grab;
 
-    width: 100%;
+    &:active {
+      cursor: grabbing;
+    }
+  }
+
+  .disabled {
+    opacity: 0.7;
+    cursor: default !important;
+
+    .slider-button,
+    .selected-range {
+      cursor: inherit !important;
+    }
   }
 }
 
-.draggable {
-  cursor: grab;
-  &:active {
-    cursor: grabbing;
-  }
+@media (prefers-color-scheme: dark) {
+  $app_lightest_grey: #BCBEBF;
+  $app_light_grey: #6C7579;
+  $slider_range_color: #c2c44d;
+  $slider_font_color: white;
+
+  @include styles($app_lightest_grey, $app_light_grey, $slider_range_color, $slider_font_color);
 }
 
-.disabled {
-  opacity: 0.7;
-  cursor: default !important;
+@media (prefers-color-scheme: light) {
+  $app_lightest_grey: #BCBEBF;
+  $app_light_grey: #6C7579;
+  $rsb_green: #22c4ac;
+  $slider_font_color: black;
 
-  .slider-button,
-  .selected-range {
-    cursor: inherit !important;
-  }
+  @include styles($app_lightest_grey, $app_light_grey, $rsb_green, $slider_font_color);
 }
-

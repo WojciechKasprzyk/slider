@@ -4,7 +4,7 @@ import {
   ElementRef, EventEmitter, HostListener, Input,
   OnDestroy,
   Output,
-  ViewChild
+  ViewChild, ViewEncapsulation
 } from '@angular/core';
 import { fromEvent, Subject, BehaviorSubject, Observable } from 'rxjs';
 import { distinctUntilChanged, mergeWith, takeUntil, tap } from 'rxjs/operators';
@@ -14,8 +14,9 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
  * TODO
  * - custom steps
  * - custom buttons
- * - custom styles
+ * - custom styles guide
  * - steps labels
+ * - dark theme
  * - docs
  * - readme
  * - make some methods static
@@ -29,6 +30,8 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
  * - touch events
  * - form
  * - setters refactoring
+ * - showGrid
+ * - hideSideSteps
  *
  * */
 
@@ -38,6 +41,7 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
   templateUrl: './ls-slider.component.html',
   styleUrls: ['./ls-slider.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  encapsulation: ViewEncapsulation.ShadowDom,
   providers: [
     {
       provide: NG_VALUE_ACCESSOR,
@@ -119,32 +123,48 @@ export class LsSliderComponent implements AfterViewInit, OnDestroy, ControlValue
    * Used in init method to make sure that correct slider bar width is set.
    * Needed only if slider bar width changes while setting new input value.
    */
-  @Input() resizeAfterTemplateIsReRendered = true;
+  @Input() resizeAfterTemplateIsReRendered: boolean = true;
 
   /**
    * TODO
    * */
-  @Input() rangeSelector = true;
+  @Input() rangeSelector: boolean = true;
 
   /**
    * TODO
    * */
-  @Input() emitValueWhileMoving = false;
+  @Input() emitValueWhileMoving: boolean = false;
 
   /**
    * TODO
    * */
-  @Input() disabled = false;
+  @Input() disabled: boolean = false;
 
   /**
    * TODO
    * */
-  @Input() enableButtonOverlapping = true;
+  @Input() enableButtonOverlapping: boolean = true;
 
   /**
    * TODO
    * */
-  @Input() enableButtonsShuffle = true;
+  @Input() enableButtonsShuffle: boolean = true;
+
+  /**
+   * TODO
+   * */
+  @Input() showGrid: boolean  = true;
+
+  /**
+   * TODO
+   * */
+  @Input() hideSideSteps: boolean  = false;
+
+  // /**
+  //  * TODO
+  //  * */
+  // @Input() leftButtonInnerHtml: string = `<span></span><span></span>`;
+  // @Input() rightButtonInnerHtml: string = `<span></span><span></span>`;
 
   /**
    * TODO
@@ -185,12 +205,17 @@ export class LsSliderComponent implements AfterViewInit, OnDestroy, ControlValue
     this.steps = value;
   }
 
-  private _stepsLabels?: string[];
+   _stepsLabels?: string[];
 
   /**
    * TODO
    * */
   steps: Array<string | undefined> = [];
+
+  /**
+   * Prevent from animating slider at the very beginning
+   * */
+  animationEnabled = false;
 
   /**
    * Emit button values when they has been changed
@@ -394,14 +419,7 @@ export class LsSliderComponent implements AfterViewInit, OnDestroy, ControlValue
       return translateValue;
     } else {
       if(this.enableButtonsShuffle &&  this.minimalSpaceBetweenButtons === 0) {
-        if (this.draggingElement === this.buttonRight.nativeElement) {
-          this.to = this.calculateValueFromTranslation(this.draggingElement!);
-          this.draggingElement = this.buttonLeft?.nativeElement;
-        } else {
-          this.from = this.calculateValueFromTranslation(this.draggingElement!);
-          this.draggingElement = this.buttonRight?.nativeElement;
-        }
-
+        this.shuffleButtons();
       }
     }
 
@@ -410,7 +428,30 @@ export class LsSliderComponent implements AfterViewInit, OnDestroy, ControlValue
     }
 
     return this.getTranslateValueOf(this.buttonLeft?.nativeElement) + this.minimalSpaceBetweenButtons;
+  }
 
+  /**
+   * Regarding to dragging button
+   * save dropped button value basing on dragging button position
+   * adjust dropped button to right place basing on its value
+   * do shuffle (swap) buttons
+   * */
+  shuffleButtons() {
+    if (this.draggingElement === this.buttonRight.nativeElement) {
+      //save dropped button value basing on its position
+      this.to = this.calculateValueFromTranslation(this.draggingElement!);
+      // adjust dropped button to right place basing on its value
+      this.moveButton(this.calculateTranslationFromValue(this._to));
+      // do shuffle
+      this.draggingElement = this.buttonLeft?.nativeElement;
+    } else {
+      //save dropped button value basing on its position
+      this.from = this.calculateValueFromTranslation(this.draggingElement!);
+      // adjust dropped button to right place basing on its value
+      this.moveButton(this.calculateTranslationFromValue(this._from));
+      // do shuffle
+      this.draggingElement = this.buttonRight.nativeElement;
+    }
   }
 
   /**
@@ -639,8 +680,8 @@ export class LsSliderComponent implements AfterViewInit, OnDestroy, ControlValue
    * TODO
    * */
   private getMaxValue(value: number): number {
-    if (this.ceilValue < value) {
-      console.error(`'to' value cannot be bigger than ceilValue.\nTrying set value of ${value}, cannot be more than ${this.ceilValue}`);
+    if (this.ceilValue < value || value < this._from) {
+      console.error(`'to' value cannot be bigger than ceilValue and smaller than 'from' value.\nTrying set value of ${value}, cannot be more than ${this.ceilValue}`);
       return this.ceilValue;
     }
     return value;
@@ -650,8 +691,8 @@ export class LsSliderComponent implements AfterViewInit, OnDestroy, ControlValue
    * TODO
    * */
   private getMinValue(value: number): number {
-    if (value < 0) {
-      console.error(`'from' value cannot be smaller than 0.\nTrying set value of ${value}`);
+    if (value < 0 || value > this._to) {
+      console.error(`'from' value cannot be smaller than 0 and bigger than 'to' value.\nTrying set value of ${value}`);
       return 0;
     }
     return value;
@@ -685,6 +726,7 @@ export class LsSliderComponent implements AfterViewInit, OnDestroy, ControlValue
 
   ngAfterViewInit(): void {
     this.init();
+    setTimeout(() => this.animationEnabled = true);
     this.mousemove$
       .pipe(
         tap((event) => {

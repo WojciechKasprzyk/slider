@@ -3,14 +3,37 @@ $slider-min-width: calc(#{$date-width} + 50px);
 
 ::ng-deep {
   body {
-    background: #353535;
+    @media (prefers-color-scheme: dark) {
+      background: #353535;
+    }
   }
 }
 
 .slider-inner {
+  padding-top: 50px;
+
+
   display: flex;
   flex-flow: column;
   justify-content: space-evenly;
   width: 100vw;
   min-width: $slider-min-width;
+}
+
+span {
+  width: 1px;
+  height: 60%;
+  background-color: rgba(#BCBEBF, .7);
+  display: inline-block;
+}
+
+
+
+#second-slider {
+  //::ng-deep {
+
+  .slider-container .range-slider .selected-range {
+    background: #22c4ac;
+  }
+  //}
 }
