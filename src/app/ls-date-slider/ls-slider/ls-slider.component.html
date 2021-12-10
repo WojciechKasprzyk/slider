@@ -12,6 +12,7 @@
           *ngIf="rangeSelector"
           class="slider-button"
           [class.animated]="animationEnabled && !draggingElement"
+          [class.active]="draggingElement === buttonLeft || draggingElement === selectedRange"
           draggable="false"
           [style.width.px]="BUTTON_WIDTH"
           (touchstart)="mouseDownHandler($event, buttonLeft)"
@@ -21,6 +22,7 @@
     <span #selectedRange
           [class.animated]="animationEnabled && !draggingElement"
           [class.draggable]="rangeSelector"
+          [class.active]="draggingElement === selectedRange"
           class="selected-range"
           (touchstart)="rangeSelector && mouseDownHandler($event, selectedRange)"
           (mousedown)="rangeSelector && mouseDownHandler($event, selectedRange)">
@@ -28,6 +30,7 @@
     <span #buttonRight
           class="slider-button"
           [class.animated]="animationEnabled && !draggingElement"
+          [class.active]="draggingElement === buttonRight || draggingElement === selectedRange"
           draggable="false"
           [style.width.px]="BUTTON_WIDTH"
           (touchstart)="mouseDownHandler($event, buttonRight)"

@@ -24,4 +24,15 @@ export class AppComponent {
     this.form.valueChanges.subscribe(changes => console.log(changes));
     // this.form.disable()
   }
+
+  thirdValues = [
+    '#00d4ff ',
+    '#ddd',
+    '#ccc',
+    '#aaa',
+    '#888',
+    '#333',
+    '#00d4ff ',
+    '#020024',
+  ]
 }

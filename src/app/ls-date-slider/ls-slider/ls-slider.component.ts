@@ -15,6 +15,8 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
  * - custom steps
  * - custom buttons
  * - custom styles guide
+ * - use ngClass
+ * - color slider with gradient .range-slider changing page color gradient and buttons colors !!!!!! IMPORTANT
  * - steps labels
  * - dark theme
  * - docs
@@ -238,12 +240,19 @@ export class LsSliderComponent implements AfterViewInit, OnDestroy, ControlValue
   @ViewChild('selectedRange') private readonly selectedRange!: ElementRef;
 
   get ceilValue(): number {
-    if (this._stepsLabels) {
-      return this._stepsLabels.length - 1;
-    }
+    // if (this._stepsLabels) {
+    //   return this._stepsLabels.length - 1;
+    // }
 
     return this._ceilValue;
   }
+
+  /**
+   * TODO
+   * */
+  get to(): number {return this._to;}
+  get from(): number {return this._from;}
+  get value(): number {return this._value;}
 
   get toOrValue(): number {
     return this.rangeSelector ? this._to : this._value;
@@ -419,6 +428,7 @@ export class LsSliderComponent implements AfterViewInit, OnDestroy, ControlValue
     } else {
       if(this.enableButtonsShuffle &&  this.minimalSpaceBetweenButtons === 0) {
         this.shuffleButtons();
+        this.cdr.markForCheck();
       }
     }
 

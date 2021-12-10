@@ -20,20 +20,57 @@ $slider-min-width: calc(#{$date-width} + 50px);
   min-width: $slider-min-width;
 }
 
-span {
-  width: 1px;
-  height: 60%;
-  background-color: rgba(#BCBEBF, .7);
-  display: inline-block;
-}
-
 
 
 #second-slider {
-  //::ng-deep {
-
-  .slider-container .range-slider .selected-range {
-    background: #22c4ac;
+  .selected-range {
+    background: rgba(#22c4ac, .6);
+    height: 100%;
   }
-  //}
+
+  .slider-button {
+    border-radius: 50%;
+    height: 17px;
+
+    &:after {
+      display: block;
+      content: '•';
+      color: #22c4ac;
+
+    }
+
+    &>span {
+      display: none;
+    }
+  }
+
+  .active {
+    color: red;
+    &:after {
+      color: red;
+    }
+  }
+
+}
+
+#third-slider {
+
+  .range-slider {
+    background: rgb(2,0,36);
+    background: linear-gradient(90deg, rgba(2,0,36,1) 0%, rgba(64,64,115,1) 49%, rgba(0,212,255,1) 100%);
+  }
+
+  .selected-range {
+    background: rgba(#777, .2);
+  }
+
+  .slider-button {
+    &:first-of-type {
+      background-color: var(--from);
+    }
+    &:last-of-type {
+      background-color: var(--to);
+    }
+  }
+
 }
