@@ -22,6 +22,8 @@ $slider-height: 12px;
 
   .slider-container {
     padding: 1rem;
+    @include user-select-none;
+    @include touch-action-none;
 
     .range-slider {
       /** Necessary for steps displayed */
@@ -36,8 +38,6 @@ $slider-height: 12px;
       position: relative;
 
       .selected-range {
-        @include user-select-none;
-        @include touch-action-none;
         position: absolute;
         height: $button-height;
         width: 200px;
@@ -63,15 +63,24 @@ $slider-height: 12px;
         cursor: e-resize;
 
         & > span {
-          width: 1px;
+          width: .5px;
           height: 60%;
           background-color: rgba($app_lightest_grey, .7);
           display: inline-block;
         }
+
+        & .label {
+          pointer-events: none;
+          position: absolute;
+          top: -30px;
+          background: white;
+          padding: 2px;
+          border-radius: 4px;
+        }
       }
 
       .step-decorator {
-        width: 1px;
+        width: .5px;
         height: 100%;
         background-color: rgba($app_lightest_grey, .7);
         display: inline-block;

@@ -17,6 +17,10 @@
           [style.width.px]="BUTTON_WIDTH"
           (touchstart)="mouseDownHandler($event, buttonLeft)"
           (mousedown)="mouseDownHandler($event, buttonLeft)">
+          <div *ngIf="fromLabel"
+               class="label">
+            {{fromLabel}}
+          </div>
           <span></span><span></span>
       </span>
     <span #selectedRange
@@ -35,6 +39,10 @@
           [style.width.px]="BUTTON_WIDTH"
           (touchstart)="mouseDownHandler($event, buttonRight)"
           (mousedown)="mouseDownHandler($event, buttonRight)">
+          <div *ngIf="toLabel || valueLabel"
+               class="label">
+            {{toLabel || valueLabel}}
+          </div>
           <span></span><span></span>
       </span>
   </div>

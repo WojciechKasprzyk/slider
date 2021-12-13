@@ -28,6 +28,10 @@ $slider-min-width: calc(#{$date-width} + 50px);
     height: 100%;
   }
 
+  .step-decorator {
+    margin-top: 0;
+  }
+
   .slider-button {
     border-radius: 50%;
     height: 17px;
@@ -57,7 +61,7 @@ $slider-min-width: calc(#{$date-width} + 50px);
 
   .range-slider {
     background: rgb(2,0,36);
-    background: linear-gradient(90deg, rgba(2,0,36,1) 0%, rgba(64,64,115,1) 49%, rgba(0,212,255,1) 100%);
+    background: linear-gradient(90deg, rgba(0,212,255,1) 0%, rgba(2,0,36,1) 100%);
   }
 
   .selected-range {
@@ -65,12 +69,63 @@ $slider-min-width: calc(#{$date-width} + 50px);
   }
 
   .slider-button {
+    box-shadow: 0 0 4px rgba(white, .3);
     &:first-of-type {
       background-color: var(--from);
     }
     &:last-of-type {
       background-color: var(--to);
     }
+
+    & > span {
+      background-color: white;
+    }
   }
 
+}
+
+
+#fourth-slider {
+  .range-slider {
+    background: rgb(2,0,36);
+    background: linear-gradient(0deg, rgba(2,0,36,1) 0%, rgba(255,80,0,1) 50%, rgba(2,0,36,1) 100%);
+  }
+
+  .selected-range {
+    background: rgba(2,0,36,.6);
+    height: 140%;
+  }
+  .slider-button {
+    & > span {
+      background-color: white;
+    }
+
+    .label {
+      opacity: 0;
+      transition: opacity .2s ease-out;
+    }
+
+    }
+    .active {
+      .label {
+        opacity: 1;
+      }
+  }
+
+  .step-decorator {
+    height: 50%;
+    margin-top: 7px;
+    &:nth-child(4n) {
+      height: 100%;
+      margin-top: 5px;
+    }
+  }
+}
+
+#fifth-slider {
+  .selected-range {
+    background: rgba(2,0,36,.6);
+    height: 100%;
+    border-radius: 10px;
+  }
 }
