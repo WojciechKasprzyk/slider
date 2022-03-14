@@ -7,7 +7,7 @@ import {
   ViewChild
 } from '@angular/core';
 import { fromEvent, Subject, BehaviorSubject, Observable } from 'rxjs';
-import { distinctUntilChanged, mergeWith, takeUntil, tap } from 'rxjs/operators';
+import { distinctUntilChanged, filter, mergeWith, takeUntil, tap } from 'rxjs/operators';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 
 /**
@@ -46,7 +46,7 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
   providers: [
     {
       provide: NG_VALUE_ACCESSOR,
-      multi:true,
+      multi: true,
       useExisting: LsSliderComponent
     }
   ]
@@ -115,7 +115,10 @@ export class LsSliderComponent implements AfterViewInit, OnDestroy, ControlValue
    * to dragging buttons over document, not only over this component (slider bar).
    */
   private readonly mousemove$ = fromEvent(document, 'mousemove')
-    .pipe(mergeWith(fromEvent(document, 'touchmove')));
+    .pipe(
+      mergeWith(fromEvent(document, 'touchmove')),
+      filter(_ => !this.disabled && !!this.draggingElement)
+    );
 
   /**
    *
@@ -304,7 +307,7 @@ export class LsSliderComponent implements AfterViewInit, OnDestroy, ControlValue
             }
             this.draggingElement = null;
             this.cdr.markForCheck();
-            this.draggingEnd.emit();
+            this.draggingEnd.observed && this.draggingEnd.emit();
             this.adjustElements();
           }
         }),
@@ -644,7 +647,7 @@ export class LsSliderComponent implements AfterViewInit, OnDestroy, ControlValue
     if (this.lastEmittedFromValue !== newLowValue) {
       // shift and emit lowValue
       this.from = newLowValue;
-      this.fromChange.emit(this._from);
+      this.fromChange.observed && this.fromChange.emit(this._from);
     }
   }
 
@@ -661,10 +664,10 @@ export class LsSliderComponent implements AfterViewInit, OnDestroy, ControlValue
       // shift and emit highValue
       if (this.rangeSelector) {
         this.to = newHighValue;
-        this.toChange.emit(this._to);
+        this.toChange.observed && this.toChange.emit(this._to);
       } else {
         this.value = newHighValue;
-        this.valueChange.emit(this._value);
+        this.valueChange.observed && this.valueChange.emit(this._value);
       }
     }
   }
@@ -900,11 +903,11 @@ export class LsSliderComponent implements AfterViewInit, OnDestroy, ControlValue
   }
 
   ngOnDestroy(): void {
-    this.ngUnsubscribe.next(null);
-    this.ngUnsubscribe.complete();
+    this.ngUnsubscribe.next && this.ngUnsubscribe.next(null);
+    this.ngUnsubscribe.complete && this.ngUnsubscribe.complete();
 
-    this.reactiveFormUnsubscribe.next(null);
-    this.reactiveFormUnsubscribe.complete();
+    this.reactiveFormUnsubscribe.next && this.reactiveFormUnsubscribe.next(null);
+    this.reactiveFormUnsubscribe.complete && this.reactiveFormUnsubscribe.complete();
   }
 
   /**

@@ -11,8 +11,8 @@
   touch-action: none;
 }
 // sizes
-$button-height: 24px;
-$slider-height: 12px;
+$selected-range-height: 8px;
+$slider-height: 8px;
 //colors
 
 @mixin styles($app_lightest_grey, $app_light_grey, $slider_range_color, $slider_font_color) {
@@ -32,16 +32,15 @@ $slider-height: 12px;
 
       width: 100%;
       height: $slider-height;
-      background-color: rgba($app_lightest_grey, .2);
-      border: 1px solid rgba($app_lightest_grey, .2);
+      background-color: rgba(198, 174, 231, 0.7);
       border-radius: 20px;
       position: relative;
 
       .selected-range {
         position: absolute;
-        height: $button-height;
+        height: $selected-range-height;
         width: 200px;
-        background-color: rgba($slider_range_color, .2);
+        background-color: rgba(98, 0, 238);
         top: 50%;
 
         transform: translate(10px, -50%);
@@ -50,10 +49,8 @@ $slider-height: 12px;
       .slider-button {
         @include touch-action-none;
         position: absolute;
-        height: $button-height;
         background-color: white;
         border: 1px solid rgba($app_light_grey, .2);
-        border-radius: 5px;
         top: 50%;
         transform: translateY(-50%);
         display: flex;
@@ -61,13 +58,9 @@ $slider-height: 12px;
         align-items: center;
         z-index: 10;
         cursor: e-resize;
-
-        & > span {
-          width: .5px;
-          height: 60%;
-          background-color: rgba($app_lightest_grey, .7);
-          display: inline-block;
-        }
+        border-radius: 50%;
+        height: 17px;
+        background-color: rgba(98, 0, 238);
 
         & .label {
           pointer-events: none;
@@ -80,12 +73,12 @@ $slider-height: 12px;
       }
 
       .step-decorator {
-        width: .5px;
-        height: 100%;
+        width: 6px;
+        height: 6px;
+        margin-top: 1px;
+        border-radius: 6px;
         background-color: rgba($app_lightest_grey, .7);
         display: inline-block;
-
-        margin-top: 5px;
       }
     }
 
@@ -120,7 +113,7 @@ $slider-height: 12px;
 }
 
 @media (prefers-color-scheme: dark) {
-  $app_lightest_grey: #BCBEBF;
+  $app_lightest_grey: #DDD;
   $app_light_grey: #6C7579;
   $slider_range_color: #c2c44d;
   $slider_font_color: white;
@@ -129,10 +122,24 @@ $slider-height: 12px;
 }
 
 @media (prefers-color-scheme: light) {
-  $app_lightest_grey: #BCBEBF;
+  $app_lightest_grey: #9C9E9F;
   $app_light_grey: #6C7579;
   $rsb_green: #22c4ac;
   $slider_font_color: black;
 
   @include styles($app_lightest_grey, $app_light_grey, $rsb_green, $slider_font_color);
+}
+
+
+
+
+
+.slider-button {
+  border-radius: 50%;
+  height: 17px;
+  background-color: rgba(98, 0, 238);
+
+  &>span {
+    display: none;
+  }
 }

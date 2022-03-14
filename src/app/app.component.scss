@@ -3,14 +3,21 @@ $slider-min-width: calc(#{$date-width} + 50px);
 
 ::ng-deep {
   body {
+    width: 100vw;
+    margin: 0;
     @media (prefers-color-scheme: dark) {
       background: #353535;
     }
   }
 }
 
+h1 {
+  padding-left: 1rem;
+  color: white;
+}
+
 .slider-inner {
-  padding-top: 50px;
+  padding-bottom: 10px;
 
 
   display: flex;
@@ -21,15 +28,9 @@ $slider-min-width: calc(#{$date-width} + 50px);
 }
 
 
-
 #second-slider {
   .selected-range {
-    background: rgba(#22c4ac, .6);
     height: 100%;
-  }
-
-  .step-decorator {
-    margin-top: 0;
   }
 
   .slider-button {
@@ -39,17 +40,14 @@ $slider-min-width: calc(#{$date-width} + 50px);
     &:after {
       display: block;
       content: '•';
-      color: #22c4ac;
+      color: white;
 
-    }
-
-    &>span {
-      display: none;
     }
   }
 
   .active {
     color: red;
+
     &:after {
       color: red;
     }
@@ -60,8 +58,8 @@ $slider-min-width: calc(#{$date-width} + 50px);
 #third-slider {
 
   .range-slider {
-    background: rgb(2,0,36);
-    background: linear-gradient(90deg, rgba(0,212,255,1) 0%, rgba(2,0,36,1) 100%);
+    background: rgb(2, 0, 36);
+    background: linear-gradient(90deg, rgba(0, 212, 255, 1) 0%, rgba(2, 0, 36, 1) 100%);
   }
 
   .selected-range {
@@ -70,9 +68,11 @@ $slider-min-width: calc(#{$date-width} + 50px);
 
   .slider-button {
     box-shadow: 0 0 4px rgba(white, .3);
+
     &:first-of-type {
       background-color: var(--from);
     }
+
     &:last-of-type {
       background-color: var(--to);
     }
@@ -87,15 +87,18 @@ $slider-min-width: calc(#{$date-width} + 50px);
 
 #fourth-slider {
   .range-slider {
-    background: rgb(2,0,36);
-    background: linear-gradient(0deg, rgba(2,0,36,1) 0%, rgba(255,80,0,1) 50%, rgba(2,0,36,1) 100%);
+    background: rgb(2, 0, 36);
+    background: linear-gradient(0deg, rgba(2, 0, 36, 1) 0%, rgba(255, 80, 0, 1) 50%, rgba(2, 0, 36, 1) 100%);
   }
 
   .selected-range {
-    background: rgba(2,0,36,.6);
+    background: rgba(2, 0, 36, .6);
     height: 140%;
   }
+
   .slider-button {
+    background-color: white;
+
     & > span {
       background-color: white;
     }
@@ -105,17 +108,23 @@ $slider-min-width: calc(#{$date-width} + 50px);
       transition: opacity .2s ease-out;
     }
 
+  }
+
+  .active {
+    .label {
+      opacity: 1;
     }
-    .active {
-      .label {
-        opacity: 1;
-      }
   }
 
   .step-decorator {
+    width: .5px;
+    background-color: rgba(#BCBEBF, .7);
+    display: inline-block;
+
     height: 50%;
     margin-top: 7px;
-    &:nth-child(4n) {
+
+    &:nth-child(5n + 1) {
       height: 100%;
       margin-top: 5px;
     }
@@ -124,7 +133,7 @@ $slider-min-width: calc(#{$date-width} + 50px);
 
 #fifth-slider {
   .selected-range {
-    background: rgba(2,0,36,.6);
+    background: rgba(2, 0, 36, .6);
     height: 100%;
     border-radius: 10px;
   }
