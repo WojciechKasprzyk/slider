@@ -13,7 +13,6 @@ $slider-min-width: calc(#{$date-width} + 50px);
 
 h1 {
   padding-left: 1rem;
-  color: white;
 }
 
 .slider-inner {
@@ -59,11 +58,11 @@ h1 {
 
   .range-slider {
     background: rgb(2, 0, 36);
-    background: linear-gradient(90deg, rgba(0, 212, 255, 1) 0%, rgba(2, 0, 36, 1) 100%);
+    background: linear-gradient(90deg, rgba(100, 0, 238, 1) 0%, rgba(2, 0, 36, 1) 100%);
   }
 
   .selected-range {
-    background: rgba(#777, .2);
+    background: rgba(#111, .3);
   }
 
   .slider-button {
@@ -88,7 +87,7 @@ h1 {
 #fourth-slider {
   .range-slider {
     background: rgb(2, 0, 36);
-    background: linear-gradient(0deg, rgba(2, 0, 36, 1) 0%, rgba(255, 80, 0, 1) 50%, rgba(2, 0, 36, 1) 100%);
+    background: linear-gradient(0deg, rgba(2, 0, 36, 1) 0%, rgba(100, 50, 238, 1) 50%, rgba(2, 0, 36, 1) 100%);
   }
 
   .selected-range {
@@ -133,7 +132,6 @@ h1 {
 
 #fifth-slider {
   .selected-range {
-    background: rgba(2, 0, 36, .6);
     height: 100%;
     border-radius: 10px;
   }
