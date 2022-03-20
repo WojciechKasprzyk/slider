@@ -4,17 +4,19 @@
     <ng-container *ngIf="showGrid">
       <span *ngFor="let _ of steps; let first = first; let last = last"
             [style.visibility]="hideSideSteps && (first || last) ? 'hidden' : 'visible'"
-            [style.marginLeft.px]="first ? BUTTON_WIDTH / 2 : 0"
-            [style.marginRight.px]="last ? BUTTON_WIDTH / 2 : 0"
+            [style.marginLeft.px]="first ? buttonWidth / 2 : 0"
+            [style.marginRight.px]="last ? buttonWidth / 2 : 0"
             class="step-decorator"></span>
     </ng-container>
     <span #buttonLeft
+          (keydown)="keydown($event)"
+          tabindex="0"
           *ngIf="rangeSelector"
           class="slider-button"
           [class.animated]="animationEnabled && !draggingElement"
           [class.active]="draggingElement === buttonLeft || draggingElement === selectedRange"
           draggable="false"
-          [style.width.px]="BUTTON_WIDTH"
+          [style.width.px]="buttonWidth"
           (touchstart)="mouseDownHandler($event, buttonLeft)"
           (mousedown)="mouseDownHandler($event, buttonLeft)">
           <div *ngIf="fromLabel"
@@ -31,11 +33,13 @@
           (mousedown)="rangeSelector && mouseDownHandler($event, selectedRange)">
       </span>
     <span #buttonRight
+          (keydown)="keydown($event)"
+          tabindex="0"
           class="slider-button"
           [class.animated]="animationEnabled && !draggingElement"
           [class.active]="draggingElement === buttonRight || draggingElement === selectedRange"
           draggable="false"
-          [style.width.px]="BUTTON_WIDTH"
+          [style.width.px]="buttonWidth"
           (touchstart)="mouseDownHandler($event, buttonRight)"
           (mousedown)="mouseDownHandler($event, buttonRight)">
           <div *ngIf="toLabel || valueLabel"

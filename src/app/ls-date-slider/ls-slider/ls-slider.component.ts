@@ -12,6 +12,7 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 
 /**
  * TODO
+ * - accessibility
  * - custom styles guide
  * - dark theme
  * - readme
@@ -124,7 +125,7 @@ export class LsSliderComponent implements AfterViewInit, OnDestroy, ControlValue
    *
    * Default Value is equal to 17, because of space-evenly, it's 5px * 3 + 2 * span.width
    */
-  @Input() BUTTON_WIDTH = 17;
+  @Input() buttonWidth: number = 17;
 
   /**
    * If true
@@ -191,7 +192,7 @@ export class LsSliderComponent implements AfterViewInit, OnDestroy, ControlValue
    * Validates value and sets
    * */
   @Input() set from(value: number) {
-    this._from = LsSliderComponent.getMinValue(value);
+    this._from = this.getValidValue(value);
     this.lastEmittedFromValue = this._from;
   }
 
@@ -200,7 +201,7 @@ export class LsSliderComponent implements AfterViewInit, OnDestroy, ControlValue
    * Validates value and sets
    * */
   @Input() set to(value: number) {
-    this._to = this.getMaxValue(value);
+    this._to = this.getValidValue(value);
     this.lastEmittedToValue = this._to;
   }
 
@@ -209,7 +210,7 @@ export class LsSliderComponent implements AfterViewInit, OnDestroy, ControlValue
    * Validates value and sets
    * */
   @Input() set value(value: number) {
-    this._value = this.getMaxValue(LsSliderComponent.getMinValue(value));
+    this._value = this.getValidValue(value);
     this.lastEmittedToValue = this._value;
   }
 
@@ -271,6 +272,41 @@ export class LsSliderComponent implements AfterViewInit, OnDestroy, ControlValue
   @ViewChild('buttonRight') private readonly buttonRight!: ElementRef;
   @ViewChild('sliderBar') private readonly sliderBar!: ElementRef;
   @ViewChild('selectedRange') private readonly selectedRange!: ElementRef;
+
+  keydown(event: KeyboardEvent) {
+    const keyCodes = [37,38,39,40];
+    if(keyCodes.includes(event.keyCode)) {
+      event.preventDefault();
+      let newPossibleValue;
+      if (event.keyCode === 37 || event.keyCode === 40) {
+        if (event.target === this.buttonRight.nativeElement) {
+          // this.enableButtonsShuffle
+          // this.enableButtonOverlapping
+          newPossibleValue = this.getValidValue(this.toOrValue -1);
+          if(newPossibleValue < this.from) {
+            this.buttonLeft?.nativeElement.focus();
+            this.from = newPossibleValue;
+          } else {
+            this.to = newPossibleValue;
+          }
+        } else {
+          newPossibleValue = this.getValidValue(this.from - 1);
+          this.from = newPossibleValue;
+        }
+      } else {
+        if (event.target === this.buttonRight.nativeElement) {
+          // this.enableButtonsShuffle
+          // this.enableButtonOverlapping
+          newPossibleValue = this.toOrValue +1;
+          this.to = newPossibleValue;
+        } else {
+          newPossibleValue = this.from + 1;
+          this.from = newPossibleValue;
+        }
+      }
+      this.adjustElements();
+    }
+  }
 
   /**
    * _ceilValue getter
@@ -790,7 +826,7 @@ export class LsSliderComponent implements AfterViewInit, OnDestroy, ControlValue
   private initializeSliderBarSizes(): void {
     if (this.sliderBar) {
       this.sliderBarWidth = this.sliderBar.nativeElement.clientWidth;
-      this.maximumTranslateValue = this.sliderBarWidth - this.BUTTON_WIDTH;
+      this.maximumTranslateValue = this.sliderBarWidth - this.buttonWidth;
     }
   }
 
@@ -824,12 +860,19 @@ export class LsSliderComponent implements AfterViewInit, OnDestroy, ControlValue
    */
   private resizeSelectedRange(): void {
     if (this.selectedRange) {
-      const selectedRangeTranslations = LsSliderComponent.getTranslateValueOf(this.buttonLeft?.nativeElement) + (+this.rangeSelector * this.BUTTON_WIDTH / 2);
-      const selectedRangeWidth = LsSliderComponent.getTranslateValueOf(this.buttonRight.nativeElement) - LsSliderComponent.getTranslateValueOf(this.buttonLeft?.nativeElement) + (+!this.rangeSelector * this.BUTTON_WIDTH / 2);
+      const selectedRangeTranslations = LsSliderComponent.getTranslateValueOf(this.buttonLeft?.nativeElement) + (+this.rangeSelector * this.buttonWidth / 2);
+      const selectedRangeWidth = LsSliderComponent.getTranslateValueOf(this.buttonRight.nativeElement) - LsSliderComponent.getTranslateValueOf(this.buttonLeft?.nativeElement) + (+!this.rangeSelector * this.buttonWidth / 2);
 
       this.selectedRange.nativeElement.style.transform = LsSliderComponent.getTranslateValueCenteredVertically(selectedRangeTranslations);
       this.selectedRange.nativeElement.style.width = `${selectedRangeWidth}px`;
     }
+  }
+
+  /**
+   * Returns button valid value
+   * */
+  private getValidValue(value: number): number {
+    return this.getMaxValue(LsSliderComponent.getMinValue(value));
   }
 
   /**
